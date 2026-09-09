@@ -57,7 +57,9 @@ func (a *URLController) UpdateShortUrl(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, updatedURL)
+	response := domainURLToResponseUpdate(updatedURL)
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (a *URLController) GetShortUrlByCode(c *gin.Context) {
@@ -69,7 +71,23 @@ func (a *URLController) GetShortUrlByCode(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Short code not found"})
 	}
 
-	c.JSON(http.StatusOK, url)
+	response := domainURLToResponseCode(url)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (a *URLController) GetShortUrlStats(c *gin.Context) {
+	code := c.Param("code")
+
+	url, err := a.service.RetrieveByShortCode(code)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Short code not found"})
+	}
+
+	response := domainURLToResponseStats(url)
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (a *URLController) DeleteShortUrl(c *gin.Context) {

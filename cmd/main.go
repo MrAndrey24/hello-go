@@ -23,6 +23,7 @@ func main() {
 			shorter.POST("", ctrl.CreateShortUrl)
 			shorter.PUT(codePath, ctrl.UpdateShortUrl)
 			shorter.GET(codePath, ctrl.GetShortUrlByCode)
+			shorter.GET(codePath+"/stats", ctrl.GetShortUrlStats)
 			shorter.DELETE(codePath, ctrl.DeleteShortUrl)
 
 		}
