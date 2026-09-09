@@ -1,0 +1,7 @@
+services:
+  url-shortener:
+    build: .
+    container_name: url-shortener
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
