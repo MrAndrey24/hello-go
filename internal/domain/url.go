@@ -21,7 +21,8 @@ func (u *URL) IncrementAccessCount() {
 
 type URLRepository interface {
 	Save(u *URL) error
-	Update(code string, u *URL) (*URL, error)
+	Update(shortCode string, u *URL) (*URL, error)
 	Delete(id string) error
 	FindByShortCode(shortCode string) (*URL, error)
+	FindUrlStatsByShortCode(shortCode string) (*URL, error)
 }

@@ -45,6 +45,7 @@ func (a *URLController) UpdateShortUrl(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "The URL is not valid"})
+		return
 	}
 
 	urlData := &domain.URL{
@@ -57,7 +58,9 @@ func (a *URLController) UpdateShortUrl(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, updatedURL)
+	response := domainURLToResponseUpdate(updatedURL)
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (a *URLController) GetShortUrlByCode(c *gin.Context) {
@@ -66,17 +69,36 @@ func (a *URLController) GetShortUrlByCode(c *gin.Context) {
 	url, err := a.service.RetrieveByShortCode(code)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Short code not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
 	}
 
-	c.JSON(http.StatusOK, url)
+	response := domainURLToResponseCode(url)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (a *URLController) GetShortUrlStats(c *gin.Context) {
+	code := c.Param("code")
+
+	url, err := a.service.RetrieveStats(code)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	response := domainURLToResponseStats(url)
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (a *URLController) DeleteShortUrl(c *gin.Context) {
 	code := c.Param("code")
 
-	if err := a.service.DeleteSHortUrl(code); err != nil {
+	if err := a.service.DeleteShortUrl(code); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "URL deleted "})

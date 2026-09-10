@@ -9,24 +9,27 @@ import (
 
 // Dependency injection
 type memoryRepository struct {
-	urls []*domain.URL
+	urls   []*domain.URL
+	nextID int64
 }
 
 // Constructor for memoryRepository
 func NewMemoryURLRepository() domain.URLRepository {
 	return &memoryRepository{
-		urls: make([]*domain.URL, 0),
+		urls:   make([]*domain.URL, 0),
+		nextID: 1,
 	}
 }
 
 func (r *memoryRepository) Save(req *domain.URL) error {
-	req.ID = int64(len(r.urls) + 1)
+	req.ID = r.nextID
+	r.nextID++
 	r.urls = append(r.urls, req)
 	return nil
 }
 
 func (r *memoryRepository) Update(code string, req *domain.URL) (*domain.URL, error) {
-	url, err := r.existShortCode(code)
+	url, err := r.FindUrlStatsByShortCode(code)
 
 	if err != nil {
 		return nil, errors.New("ShortCode not found")
@@ -42,10 +45,10 @@ func (r *memoryRepository) Delete(id string) error {
 	for i, url := range r.urls {
 		if url.ShortCode == id {
 			r.urls = append(r.urls[:i], r.urls[i+1:]...)
-			break
+			return nil
 		}
 	}
-	return nil
+	return errors.New("ShortCode not found")
 }
 
 func (r *memoryRepository) FindByShortCode(shortCode string) (*domain.URL, error) {
@@ -55,12 +58,12 @@ func (r *memoryRepository) FindByShortCode(shortCode string) (*domain.URL, error
 			return url, nil
 		}
 	}
-	return nil, nil
+	return nil, errors.New("ShortCode not found")
 }
 
-func (r *memoryRepository) existShortCode(code string) (*domain.URL, error) {
+func (r *memoryRepository) FindUrlStatsByShortCode(shortCode string) (*domain.URL, error) {
 	for _, items := range r.urls {
-		if items.ShortCode == code {
+		if items.ShortCode == shortCode {
 			return items, nil
 		}
 	}
